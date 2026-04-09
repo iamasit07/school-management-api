@@ -113,8 +113,8 @@ app.get("/listSchools", async (req: Request, res: Response): Promise<any> => {
 
     const schools = await prisma.school.findMany();
 
-    const sortedSchools: School[] = schools
-      .map((school) => {
+    const sortedSchools: School[] = (schools as School[])
+      .map((school: School) => {
         const distance = calculateDistance(userLat, userLng, school.latitude, school.longitude);
         return { ...school, distance } as School;
       })
