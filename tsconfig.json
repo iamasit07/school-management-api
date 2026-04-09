@@ -4,6 +4,7 @@
     "module": "Node16",
     "moduleResolution": "Node16",
     "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -11,7 +12,8 @@
     "strictNullChecks": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "generated/prisma/**/*"
   ],
   "exclude": [
     "node_modules",

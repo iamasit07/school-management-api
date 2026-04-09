@@ -1,13 +1,19 @@
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 import { z } from "zod";
-import { PrismaClient } from "../generated/prisma/client.js";
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg"
+
 
 dotenv.config();
 
-// @ts-ignore: Prisma v7 local strictly requires configuration arguments but works dynamically
-const prisma = new PrismaClient();
 const app = express();
+
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({
+    connectionString: process.env.DATABASE_URL
+  })
+});
 
 app.use(express.json());
 
@@ -46,6 +52,18 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 app.post("/addSchool", async (req: Request, res: Response): Promise<any> => {
   try {
     const validatedData = addSchoolSchema.parse(req.body);
+    const existingSchool = await prisma.school.findFirst({
+      where: {
+        latitude: validatedData.latitude,
+        longitude: validatedData.longitude,
+      },
+    });
+
+    if (existingSchool) {
+      return res.status(409).json({
+        error: "A school already exists at these exact coordinates.",
+      });
+    }
 
     const newSchool = await prisma.school.create({
       data: validatedData,
