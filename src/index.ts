@@ -2,8 +2,28 @@ import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 import { z } from "zod";
 import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg"
+import { PrismaPg } from "@prisma/adapter-pg";
 
+interface School {
+  id: number;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  distance: number;
+}
+
+interface AddSchool {
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+}
+
+interface ListSchools {
+  latitude: number;
+  longitude: number;
+}
 
 dotenv.config();
 
@@ -21,14 +41,14 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to the School Management API! Use /addSchool to add a school and /listSchools to fetch them by proximity.");
 });
 
-const addSchoolSchema = z.object({
+const addSchoolSchema: z.ZodType<AddSchool> = z.object({
   name: z.string().min(1, "Name is required"),
   address: z.string().min(1, "Address is required"),
   latitude: z.number().min(-90).max(90, "Latitude must be between -90 and 90"),
   longitude: z.number().min(-180).max(180, "Longitude must be between -180 and 180"),
 });
 
-const listSchoolsSchema = z.object({
+const listSchoolsSchema: z.ZodType<ListSchools> = z.object({
   latitude: z.preprocess((val) => parseFloat(val as string), z.number().min(-90).max(90)),
   longitude: z.preprocess((val) => parseFloat(val as string), z.number().min(-180).max(180)),
 });
@@ -51,7 +71,7 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 
 app.post("/addSchool", async (req: Request, res: Response): Promise<any> => {
   try {
-    const validatedData = addSchoolSchema.parse(req.body);
+    const validatedData: AddSchool = addSchoolSchema.parse(req.body);
     const existingSchool = await prisma.school.findFirst({
       where: {
         latitude: validatedData.latitude,
@@ -87,18 +107,18 @@ app.post("/addSchool", async (req: Request, res: Response): Promise<any> => {
 
 app.get("/listSchools", async (req: Request, res: Response): Promise<any> => {
   try {
-    const validatedQuery = listSchoolsSchema.parse(req.query);
+    const validatedQuery: ListSchools = listSchoolsSchema.parse(req.query);
     const userLat = validatedQuery.latitude;
     const userLng = validatedQuery.longitude;
 
     const schools = await prisma.school.findMany();
 
-    const sortedSchools = schools
+    const sortedSchools: School[] = schools
       .map((school) => {
         const distance = calculateDistance(userLat, userLng, school.latitude, school.longitude);
-        return { ...school, distance };
+        return { ...school, distance } as School;
       })
-      .sort((a, b) => a.distance - b.distance);
+      .sort((a: School, b: School) => a.distance - b.distance);
 
     return res.status(200).json({
       message: "Schools retrieved successfully",
