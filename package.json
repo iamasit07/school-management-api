@@ -1,0 +1,36 @@
+{
+  "name": "school-management-api",
+  "version": "1.0.0",
+  "description": "A RESTful Node.js application for managing school locations using Express, PostgreSQL, Prisma, and Haversine distance computations.",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express",
+    "prisma",
+    "school",
+    "management",
+    "location",
+    "haversine"
+  ],
+  "author": "Asit",
+  "license": "ISC",
+  "packageManager": "pnpm@10.33.0",
+  "dependencies": {
+    "@prisma/client": "7.7.0",
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.2",
+    "prisma": "^7.7.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}
